@@ -1,49 +1,37 @@
-import express from "express";
-import fetch from "node-fetch";
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(bodyParser.json());
 app.use(express.static("public"));
 
 let memory = [];
 
-app.post("/chat", async (req, res) => {
+app.post("/chat", (req, res) => {
   const userMessage = req.body.message;
 
   memory.push({ role: "user", content: userMessage });
-  if (memory.length > 10) memory.shift();
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `
-You are a friendly AI assistant.
-You chat like a human.
-You give advice.
-You answer questions.
-You understand and reply in all languages.
-`
-        },
-        ...memory
-      ]
-    })
-  });
+  // Simple AI logic (abhi basic, baad me smart banayenge)
+  let reply = "Mujhe samajh aa raha hai 🙂";
 
-  const data = await response.json();
-  const reply = data.choices[0].message.content;
+  if (userMessage.toLowerCase().includes("hello")) {
+    reply = "Hello! Main tumhara AI assistant hoon 🤖";
+  } else if (userMessage.toLowerCase().includes("help")) {
+    reply = "Bilkul! Batao, main kaise madad kar sakta hoon?";
+  } else if (userMessage.toLowerCase().includes("sad")) {
+    reply = "Main yahin hoon ❤️ sab theek ho jayega.";
+  }
 
-  memory.push({ role: "assistant", content[array] reply });
+  memory.push({ role: "assistant", content: reply });
+
   res.json({ reply });
 });
 
-app.listen(3000, () => {
-  console.log("AI Assistant running on port 3000");
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
 });
